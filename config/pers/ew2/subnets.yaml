@@ -1,0 +1,14 @@
+template_path: templates/subnets.py
+protect: False
+parameters:
+  VpcId:
+    !stack_output vpc::VpcId
+  IgwId:
+    !stack_output vpc::IgwId
+  Az1: eu-west-2a
+  Az2: eu-west-2b
+  StackPrefix: {{ var.stack_prefix }}
+  PubSubnet1CidrBlock: 10.0.1.0/24
+  PubSubnet2CidrBlock: 10.0.2.0/24
+  PrivSubnet1CidrBlock: 10.0.11.0/24
+  PrivSubnet2CidrBlock: 10.0.12.0/24

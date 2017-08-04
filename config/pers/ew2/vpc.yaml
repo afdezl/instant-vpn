@@ -1,0 +1,5 @@
+template_path: templates/vpc.py
+protect: False
+parameters:
+  CidrBlock: 10.0.0.0/16
+  StackPrefix: {{ var.stack_prefix }}
