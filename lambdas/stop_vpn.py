@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+from datetime import datetime
+
 import boto3
 import json
 
@@ -16,10 +18,12 @@ def main(event, context):
     schedules = {instance["InstanceId"]: instance["State"].get("Name")
                  for reservation in resp["Reservations"]
                  for instance in reservation["Instances"]}
-    stopped = []
+    response = {'items': []}
     for k, v in schedules.items():
         if v not in ["stopped", "terminated"]:
-            print("The following instance will be stopped: {}".format(k))
             EC2_CLIENT.stop_instances(InstanceIds=[k])
-            stopped.append(k)
-    return json.dumps({"Stopped": stopped})
+            response['items'].append({'InstanceId': k, 'Action': 'STOPPED'})
+        else:
+            response['items'].append({'InstanceId': k, 'Action': None})
+    print(datetime.now().isoformat(), response)
+    return json.dumps(response)
