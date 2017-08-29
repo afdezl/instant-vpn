@@ -24,25 +24,13 @@ PARAMETERS = {
         "Type": "String",
         "Default": "eu-west-1a"
     },
-    "Az2": {
-        "Type": "String",
-        "Default": "eu-west-1b"
-    },
     "PubSubnet1CidrBlock": {
         "Type": "String",
         "Default": "10.0.1.0/24"
     },
-    "PubSubnet2CidrBlock": {
-        "Type": "String",
-        "Default": "10.0.2.0/24"
-    },
     "PrivSubnet1CidrBlock": {
         "Type": "String",
         "Default": "10.0.11.0/24"
-    },
-    "PrivSubnet2CidrBlock": {
-        "Type": "String",
-        "Default": "10.0.12.0/24"
     },
 }
 
@@ -129,13 +117,6 @@ class Subnets(object):
         )
         self.template.add_resource(self.subnetRouteTableAssociation1)
 
-        self.subnetRouteTableAssociation2 = SubnetRouteTableAssociation(
-            'PubSubnetRouteTableAssociation2',
-            SubnetId=Ref(self.public_subnets['PubSubnet2']),
-            RouteTableId=Ref(self.routeTable),
-        )
-        self.template.add_resource(self.subnetRouteTableAssociation2)
-
     def _add_outputs(self):
         self.pub_subnet1_id_output = Output(
             "PubSubnet1Id",
@@ -144,26 +125,12 @@ class Subnets(object):
         )
         self.template.add_output(self.pub_subnet1_id_output)
 
-        self.pub_subnet2_id_output = Output(
-            "PubSubnet2Id",
-            Description="Public subnet 2",
-            Value=Ref(self.public_subnets['PubSubnet2'])
-        )
-        self.template.add_output(self.pub_subnet2_id_output)
-
         self.priv_subnet1_id_output = Output(
             "PrivSubnet1Id",
             Description="Private subnet 1",
             Value=Ref(self.private_subnets['PrivSubnet1'])
         )
         self.template.add_output(self.priv_subnet1_id_output)
-
-        self.priv_subnet2_id_output = Output(
-            "PrivsSubnet2Id",
-            Description="Private subnet 2",
-            Value=Ref(self.private_subnets['PrivSubnet1'])
-        )
-        self.template.add_output(self.priv_subnet2_id_output)
 
 
 def sceptre_handler(sceptre_user_data):

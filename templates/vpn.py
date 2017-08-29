@@ -1,17 +1,28 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 from __future__ import unicode_literals
 
-from troposphere import Template, Parameter, Ref, Output, GetAtt, Tags, Join
+from troposphere import Template, Parameter, Ref, Output, GetAtt, Tags, Join, FindInMap
 from troposphere.ec2 import Instance, SecurityGroup, SecurityGroupRule
-from troposphere.route53 import RecordSetType
+
+
+OPENVPN_AMI_MAPPING = {
+    "us-east-1": {"AMI": "ami-f6eed4e0"},
+    "us-west-1": {"AMI": "ami-091f3069"},
+    "us-west-2": {"AMI": "ami-e346559a"},
+    "eu-west-1": {"AMI": "ami-238b6a5a"},
+    "eu-west-2": {"AMI": "ami-17c5d373"},
+    "sa-east-1": {"AMI": "ami-930673ff"},
+    "ap-southeast-1": {"AMI": "ami-3cd6c45f"},
+    "ap-northeast-1": {"AMI": "ami-dee1fdb9"}
+}
 
 
 class OpenVPN(object):
     def __init__(self, sceptre_user_data):
         self.sceptre_user_data = sceptre_user_data
         self.template = Template()
+        self.template.add_mapping('RegionMap', OPENVPN_AMI_MAPPING)
         self._add_parameters()
         self._add_resources()
         self._add_outputs()
@@ -23,13 +34,6 @@ class OpenVPN(object):
         )
         self.template.add_parameter(self.stack_prefix)
 
-        self.ami_id = Parameter(
-            "AmiId",
-            Type="String",
-            Default="ami-86c3c9e2",
-        )
-        self.template.add_parameter(self.ami_id)
-
         self.vpc_id_param = Parameter(
             "VpcId",
             Type="String",
@@ -39,12 +43,11 @@ class OpenVPN(object):
         self.key_name = Parameter(
             "KeyName",
             Type="String",
-            Default="adrian.fernandez",
         )
         self.template.add_parameter(self.key_name)
 
         self.ssh_ip = Parameter(
-            "SSHIP",
+            "AccessIP",
             Type="String",
             Default="10.0.0.0/8",
         )
@@ -81,7 +84,7 @@ class OpenVPN(object):
 
         self.openvpn_instance = Instance(
             "OpenVPNInstance",
-            ImageId=Ref(self.ami_id),
+            ImageId=FindInMap("RegionMap", Ref("AWS::Region"), "AMI"),
             InstanceType="t2.micro",
             KeyName=Ref(self.key_name),
             SecurityGroupIds=[Ref(self.openvpn_sg)],

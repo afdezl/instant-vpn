@@ -1,0 +1,2 @@
+project_code: {{ var.stack_prefix }}
+region: eu-west-2

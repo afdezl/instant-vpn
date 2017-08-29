@@ -15,7 +15,7 @@ service: lambdas
 
 provider:
   name: aws
-  profile: afdezl
+  profile: <your AWS profile>
   runtime: python2.7
   region: eu-west-2
   iamRoleStatements:
