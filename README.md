@@ -4,8 +4,6 @@ Setup your very own ephemeral VPN in AWS.
 
 The goal of this project is to create a VPN on demand every time you need it, resulting in a near zero cost.
 
-The VPN will only be accessible from your current IP address.
-
 ## Prerequisites
 
 * An [AWS](https://aws.amazon.com/) account. You can set one up in minutes.
@@ -80,7 +78,7 @@ sceptre --var-file=variables.yaml update-stack prod/ew2 vpn
 
 ### Optional steps
 
-If you own a domain and is configured in Route53, modify the `variables.yaml` file with your domain name in Route53.
+If you own a domain and is configured in Route53, modify the `variables.yaml` file with your domain name in Route53. The CloudFormation template will create an entry in the format `vpn.<DOMAIN>`.
 
 You can then run:
 
@@ -88,7 +86,7 @@ You can then run:
 sceptre --var-file=variables.yaml create-stack prod/ew2 recordsets
 ```
 
-To make the VPN publicly accessible, edit the `config/prod/ew2` file and modify the `AccessIP` variable to match your desired access IP, including the mask.
+To make the VPN publicly accessible, edit the `config/prod/ew2` file and modify the `AccessIP` variable to match your desired access IP, including the mask. The VPN will otherwise be onvly accessible from your current IP.
 
 You will then need to update the template via:
 
@@ -100,3 +98,7 @@ sceptre --var-file=variables.yaml update-stack prod/ew2 vpn
 ### Scheduling
 
 The project includes a lambda function deployed via [Serverless](https://serverless.com/) that shuts down the instance at night. The rate and configuration of the lambda can be modified in the `lambdas/serverless.yaml` file.
+
+### Avoiding Elastic IPs
+
+In order to reduce the stack cost, the VPN does not make use of an elastic IP, thus on every restart of the instance, the public IP will be different. A lambda called `update_r53.py` bypasses this by listening to an AWS event and updating a R53 record with the instance public IP on every instance start.
