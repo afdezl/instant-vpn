@@ -2,3 +2,4 @@ afdezl*
 venv*
 variables*
 *.pyc
+.serverless/*

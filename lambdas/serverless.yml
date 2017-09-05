@@ -1,21 +1,8 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
 service: lambdas
 
 provider:
   name: aws
-  profile: <your AWS profile>
+  profile: <YOUR_PROFILE>
   runtime: python2.7
   region: eu-west-2
   iamRoleStatements:
@@ -24,10 +11,31 @@ provider:
         - "ec2:DescribeInstances"
         - "ec2:StopInstances"
       Resource: "*"
-
+    - Effect: "Allow"
+      Action:
+        - route53:ChangeResourceRecordSets
+      Resource: "*"
 
 functions:
   stop_vpn:
     handler: stop_vpn.main
     events:
      - schedule: cron(0 01 * * ? *)
+  update_r53:
+    handler: update_r53.main
+    environment:
+      HOSTED_ZONE_ID: <YOUR_HOSTED_ZONE_ID>
+      RECORDSET: <FDQN>
+    events:
+      - cloudwatchEvent:
+          event:
+            source:
+              - "aws.ec2"
+            detail-type:
+              - "EC2 Instance State-change Notification"
+            detail:
+              instance-id:
+                - <INSTANCE_ID_TO_GET_EVENT>
+              state:
+                - running
+          enabled: true

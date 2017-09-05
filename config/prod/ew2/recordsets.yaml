@@ -1,9 +1,5 @@
 template_path: templates/recordsets.py
-hooks:
-  before_create:
-    - !start_vpn_instance {{ var.stack_prefix }}-openvpn
-  before_update:
-    - !start_vpn_instance {{ var.stack_prefix }}-openvpn
 parameters:
-  VPNPublicIp: !find_vpn_ip {{ var.stack_prefix }}-openvpn
+  VPNPublicIp:
+    !stack_output vpn::OpenVpnPublicIp
   HostedZone: {{ var.domain }}

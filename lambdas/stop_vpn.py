@@ -5,13 +5,13 @@ from datetime import datetime
 import boto3
 import json
 
-EC2_CLIENT = boto3.client("ec2")
+ec2 = boto3.client("ec2")
 TO_STOP = ["afdezl-openvpn"]
 
 
 def main(event, context):
     schedules = {}
-    resp = EC2_CLIENT.describe_instances(
+    resp = ec2.describe_instances(
         Filters=[{"Name": 'tag:Name',
                   "Values": TO_STOP}, ])
 
@@ -21,7 +21,7 @@ def main(event, context):
     response = {'items': []}
     for k, v in schedules.items():
         if v not in ["stopped", "terminated"]:
-            EC2_CLIENT.stop_instances(InstanceIds=[k])
+            ec2.stop_instances(InstanceIds=[k])
             response['items'].append({'InstanceId': k, 'Action': 'STOPPED'})
         else:
             response['items'].append({'InstanceId': k, 'Action': None})
