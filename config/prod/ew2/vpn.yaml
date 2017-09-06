@@ -10,7 +10,9 @@ parameters:
   PublicSubnetId:
     !stack_output subnets::PubSubnet1Id
   AccessIP: !find_my_ip
+  StackPrefix: {{ var.stack_prefix | default("instant-vpn") }}
+  KeyName: your-aws-keypair-name
 sceptre_user_data:
-  enable_ssh: true
+  enable_ssh: false
 dependencies:
   - prod/ew2/subnets

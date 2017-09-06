@@ -26,12 +26,12 @@ This project makes use of [sceptre](https://github.com/cloudreach/sceptre) to ma
 
 ### Setup
 
-By default the resources will deploy in the `eu-west-2` (London) region. To deploy into another region simply copy the `config/prod/ew2` directory and rename it, then in the `config/prod/<new-region>/config.yaml` modify the following variables:
+By default the resources will deploy in the `eu-west-2` (London) region. To deploy into another region simply copy the `config/prod/ew2` directory and rename it, then modify the following variables:
 
 * `region`: variable in `config/prod/<region>/config.yaml` to `<aws-region>`
-* `Az1`: parameter in `config/prod/<region>/subnets.yaml` to `<aws-region>`
+* `Az1`: parameter in `config/prod/<region>/subnets.yaml` to `<aws-region-az>`
 
-To successfully deploy the resources the following parameters will have to be configured in the `config/prod/<region>/config.yaml`:
+To successfully deploy the resources the following parameters will have to be configured in the `config/prod/<region>/vpn.yaml` and `config/prod/<region>/recordsets.yaml`:
 
 * `KeyName` **[REQUIRED]**: The keypair name to log into your AWS EC2 VPN instance.
 * `HostedZone` **[OPTIONAL]**: The name of your Hosted zone if you wish to create an A record in the form of `vpn.<domain>`.

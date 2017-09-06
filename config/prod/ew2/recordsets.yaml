@@ -2,3 +2,4 @@ template_path: templates/recordsets.py
 parameters:
   VPNPublicIp:
     !stack_output vpn::OpenVpnPublicIp
+  HostedZone: mydomain.com.
