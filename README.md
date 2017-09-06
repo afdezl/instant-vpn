@@ -26,27 +26,16 @@ This project makes use of [sceptre](https://github.com/cloudreach/sceptre) to ma
 
 ### Setup
 
-Create a file called `variables.yaml` in this project's root directory and specify the following.
+By default the resources will deploy in the `eu-west-2` (London) region. To deploy into another region simply copy the `config/prod/ew2` directory and rename it, then in the `config/prod/<new-region>/config.yaml` modify the following variables:
 
-```yaml
-stack_prefix: <prefix>
-keypair: <aws keypair name>
+* `region`: variable in `config/prod/<region>/config.yaml` to `<aws-region>`
+* `Az1`: parameter in `config/prod/<region>/subnets.yaml` to `<aws-region>`
 
-# OPTIONAL (uncomment)
-# domain: <your domain in route53>.
-```
+To successfully deploy the resources the following parameters will have to be configured in the `config/prod/<region>/config.yaml`:
 
-By default the resources will deploy in the `eu-west-2` (London) region. To deploy into another region simply rename the `config/prod/ew2` and modify the `region` and `Az1` variables.
+* `KeyName` **[REQUIRED]**: The keypair name to log into your AWS EC2 VPN instance.
+* `HostedZone` **[OPTIONAL]**: The name of your Hosted zone if you wish to create an A record in the form of `vpn.<domain>`.
 
-For instance, to deploy to `us-east-1`:
-
-```bash
-mv config/prod/ew2 config/prod/us1
-```
-
-Then change the following:
-* `region`: variable in `config/prod/ew2/config.yaml` to `us-east-1`
-* `Az1`: variable in `config/prod/ew2/subnets.yaml` to `us-east-1a`
 
 ### Deployment
 
@@ -54,44 +43,44 @@ To deploy the resources in the selected region:
 
 ```bash
 export AWS_DEFAULT_PROFILE=<your AWS profile>
-sceptre --var-file=variables.yaml create-stack prod/ew2 vpc
-sceptre --var-file=variables.yaml create-stack prod/ew2 subnets
-sceptre --var-file=variables.yaml create-stack prod/ew2 vpn
+sceptre create-stack prod/ew2 vpc
+sceptre create-stack prod/ew2 subnets
+sceptre create-stack prod/ew2 vpn
 ```
 
-Once the resources have finished deploying you can SSH into the box and configure the OpenVPN client.
+Once the resources have finished deploying you can SSH into the box and configure the OpenVPN server.
 
-To obatin the ssh IP, simply:
+To obatin the SSH IP, simply:
 
 ```bash
-sceptre --var-file=variables.yaml describe-stack-outputs prod/ew2 vpn
-ssh -i <location/of/pem/key> openvpnas@<OpenVpnPublicIp>
+eval $(sceptre describe-stack-outputs prod/ew2 vpn --export=envvar)
+ssh -i /path/to/pem-key openvpnas@${SCEPTRE_OpenVpnPublicIp}
 ```
 
-It is good practice to remove SSH access to the box via the AWS security group to prevent unwanted intrusions, for this simply edit the `config/prod/ew2/vpn.yaml` file and change the `enable_ssh` attribute to `false`.
+It is good practice to remove SSH access to the box via the AWS security group to prevent unwanted intrusions, for this simply edit the `config/prod/ew2/vpn.yaml` file and change the `enable_ssh` parameter to `false`.
 
 Perform an update of the stack as follows:
 
 ```bash
-sceptre --var-file=variables.yaml update-stack prod/ew2 vpn
+sceptre update-stack prod/ew2 vpn
 ```
 
 ### Optional steps
 
-If you own a domain and is configured in Route53, modify the `variables.yaml` file with your domain name in Route53. The CloudFormation template will create an entry in the format `vpn.<DOMAIN>`.
+If you own a domain and is configured in Route53, modify the `variables.yaml` file with your domain name in Route53. The CloudFormation template will create an entry in the format `vpn.<domain>`.
 
 You can then run:
 
 ```bash
-sceptre --var-file=variables.yaml create-stack prod/ew2 recordsets
+sceptre create-stack prod/ew2 recordsets
 ```
 
-To make the VPN publicly accessible, edit the `config/prod/ew2` file and modify the `AccessIP` variable to match your desired access IP, including the mask. The VPN will otherwise be onvly accessible from your current IP.
+To make the VPN publicly accessible, edit the `config/prod/ew2` file and modify the `AccessIP` variable to match your desired access IP, including the mask. The VPN will otherwise be only accessible from your current IP.
 
 You will then need to update the template via:
 
 ```bash
-sceptre --var-file=variables.yaml update-stack prod/ew2 vpn
+sceptre update-stack prod/ew2 vpn
 ```
 
 
@@ -101,4 +90,4 @@ The project includes a lambda function deployed via [Serverless](https://serverl
 
 ### Avoiding Elastic IPs
 
-In order to reduce the stack cost, the VPN does not make use of an elastic IP, thus on every restart of the instance, the public IP will be different. A lambda called `update_r53.py` bypasses this by listening to an AWS event and updating a R53 record with the instance public IP on every instance start.
+In order to reduce the stack cost, the VPN does not make use of an elastic IP, thus on every restart of the instance, the public IP will be different. A lambda called `update_r53.py` bypasses this by listening to an AWS RunInstances event and updating a R53 record with the instance public IP on every instance start.

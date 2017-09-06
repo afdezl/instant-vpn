@@ -5,7 +5,6 @@ parameters:
     !stack_output vpc::VpcId
   IgwId:
     !stack_output vpc::IgwId
-  Az1: eu-west-2a
   StackPrefix: {{ var.stack_prefix }}
   PubSubnet1CidrBlock: 10.0.1.0/24
   PrivSubnet1CidrBlock: 10.0.11.0/24

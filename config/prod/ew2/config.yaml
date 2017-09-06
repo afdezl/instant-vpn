@@ -1,2 +1,7 @@
-project_code: {{ var.stack_prefix }}
+project_code: {{ var.stack_prefix | default("instant-vpn") }}
 region: eu-west-2
+parameters:
+  StackPrefix: {{ var.stack_prefix | default("instant-vpn") }}
+  HostedZone: mydomain.com.
+  KeyName: my-aws-keypair-name
+  Az1: eu-west-2a

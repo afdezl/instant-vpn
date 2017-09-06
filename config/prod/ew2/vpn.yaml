@@ -1,18 +1,16 @@
 template_path: templates/vpn.py
 hooks:
   before_create:
-    - !start_vpn_instance {{ var.stack_prefix }}-openvpn
+    - !start_vpn_instance {{ var.stack_prefix | default("instant-vpn") }}-openvpn
   before_update:
-    - !start_vpn_instance {{ var.stack_prefix }}-openvpn
+    - !start_vpn_instance {{ var.stack_prefix | default("instant-vpn") }}-openvpn
 parameters:
-  KeyName: {{ var.keypair }}
   VpcId:
     !stack_output vpc::VpcId
   PublicSubnetId:
     !stack_output subnets::PubSubnet1Id
   AccessIP: !find_my_ip
-  StackPrefix: {{ var.stack_prefix }}
 sceptre_user_data:
-  enable_ssh: false
+  enable_ssh: true
 dependencies:
   - prod/ew2/subnets
