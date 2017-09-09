@@ -43,9 +43,7 @@ To deploy the resources in the selected region:
 
 ```bash
 export AWS_DEFAULT_PROFILE=<your AWS profile>
-sceptre create-stack prod/ew2 vpc
-sceptre create-stack prod/ew2 subnets
-sceptre create-stack prod/ew2 vpn
+sceptre launch-env prod/ew2
 ```
 
 Once the resources have finished deploying you can SSH into the box and configure the OpenVPN server.
@@ -83,6 +81,17 @@ You will then need to update the template via:
 sceptre update-stack prod/ew2 vpn
 ```
 
+
+## Lambdas
+
+A set of lambdas is included to avoid using EIPs and adding optional shutdown times for the instance.
+Assuming the serverless package is installed and the parameters in the `.serverless.yml` file are have been updated with your values, these can be deployed as follows:
+
+```bash
+cd lambdas
+eval $(sceptre describe-stack-outputs prod/ew2 vpn --export=envvar)
+sls deploy
+```
 
 ### Scheduling
 

@@ -1,10 +1,11 @@
-service: lambdas
+service: "instant-vpn"
 
 provider:
-  name: aws
-  profile: <YOUR_PROFILE>
-  runtime: python2.7
-  region: eu-west-2
+  name: "aws"
+  profile: "<my_profile>"
+  stage: "prod"
+  runtime: "python2.7"
+  region: "eu-west-2"
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -13,19 +14,21 @@ provider:
       Resource: "*"
     - Effect: "Allow"
       Action:
-        - route53:ChangeResourceRecordSets
+        - "route53:ChangeResourceRecordSets"
       Resource: "*"
 
 functions:
   stop_vpn:
-    handler: stop_vpn.main
+    handler: "stop_vpn.main"
+    environment:
+      TO_STOP: ${env:SCEPTRE_OpenVPNInstanceId}
     events:
      - schedule: cron(0 01 * * ? *)
   update_r53:
-    handler: update_r53.main
+    handler: "update_r53.main"
     environment:
-      HOSTED_ZONE_ID: <YOUR_HOSTED_ZONE_ID>
-      RECORDSET: <FDQN>
+      HOSTED_ZONE_ID: "<hosted_zone_id>"
+      RECORDSET: "vpn.mydomain.com"
     events:
       - cloudwatchEvent:
           event:
@@ -35,7 +38,7 @@ functions:
               - "EC2 Instance State-change Notification"
             detail:
               instance-id:
-                - <INSTANCE_ID_TO_GET_EVENT>
+                - ${env:SCEPTRE_OpenVPNInstanceId}
               state:
-                - running
+                - "running"
           enabled: true

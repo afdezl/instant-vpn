@@ -5,7 +5,7 @@ parameters:
     !stack_output vpc::VpcId
   IgwId:
     !stack_output vpc::IgwId
-  StackPrefix: {{ var.stack_prefix }}
+  StackPrefix: {{ var.stack_prefix | default("instant-vpn") }}
   PubSubnet1CidrBlock: 10.0.1.0/24
   PrivSubnet1CidrBlock: 10.0.11.0/24
   StackPrefix: {{ var.stack_prefix | default("instant-vpn") }}
