@@ -9,7 +9,7 @@ parameters:
     !stack_output subnets::PubSubnet1Id
   AccessIP: !find_my_ip
   StackPrefix: {{ var.stack_prefix | default("instant-vpn") }}
-  KeyName: adrian.fernandez
+  KeyName: <your_ec2_keypair>
 sceptre_user_data:
   enable_ssh: true
 dependencies:
