@@ -1,6 +1,6 @@
 from sceptre.resolvers import Resolver
 from json import load
-from urllib2 import urlopen
+from six.moves.urllib.request import urlopen
 
 
 class FindMyIp(Resolver):
